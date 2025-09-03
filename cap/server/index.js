@@ -18,6 +18,17 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
+// Serve models with cache headers (1 year)
+app.use(
+  '/models',
+  express.static(path.join(__dirname, 'public/models'), {
+    maxAge: '1y',
+    setHeaders: (res, path) => {
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+    },
+  })
+);
+
 // serve static assets (images, models, etc.) from ./public
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -44,8 +55,32 @@ const poiData = [
     name: "Agora",
     description: "Popular coffee and lunch spot on campus.",
     image: "/images/agora.jpg",
-    modelUrl: "/models/NR7.splat",
+    modelUrl: "/models/Poppy.glb",
     xy: { x: 0.500, y: 0.520 }
+  }
+];
+
+const modelMetadata = [
+  {
+    id: "BST",
+    name: "Boronia Library Model",
+    file: "BST.splat",
+    type: "splat",
+    size: "2.3MB"
+  },
+  {
+    id: "JG",
+    name: "Science Building Model",
+    file: "JG.splat",
+    type: "splat",
+    size: "1.8MB"
+  },
+  {
+    id: "Poppy",
+    name: "Agora Model",
+    file: "Poppy.glb",
+    type: "glb",
+    size: "3.1MB"
   }
 ];
 
@@ -62,6 +97,9 @@ app.get('/api/poi', (req, res) => {
   res.json(poiData);
 });
 
+app.get('/api/models', (req, res) => {
+  res.json(modelMetadata);
+});
 
 app.get('/api/models/:id', (req, res) => {
   const { id } = req.params;
@@ -75,3 +113,5 @@ app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
   console.log(`Test POIs: http://localhost:${PORT}/api/poi`);
 });
+
+
