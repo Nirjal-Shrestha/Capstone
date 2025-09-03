@@ -11,7 +11,6 @@ node_modules
 dist
 dist-ssr
 .local
-server-update.tar.gz
 
 Editor directories and files
 .vscode/
@@ -26,3 +25,4 @@ Editor directories and files
 
 venv/
 .env
+cap/server-update.tar.gz
