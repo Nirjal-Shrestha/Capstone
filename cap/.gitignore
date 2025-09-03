@@ -26,3 +26,5 @@ Editor directories and files
 venv/
 .env
 cap/server-update.tar.gz
+
+cap/server-update.tar.gz
