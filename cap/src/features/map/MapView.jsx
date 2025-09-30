@@ -19,7 +19,7 @@ export default function MapView({ poi, width = 1600, height = 1000 }) {
     const y = (e.clientY - rect.top) / rect.height;
     console.log('Marker XY (0..1):', { x: +x.toFixed(4), y: +y.toFixed(4) });
   }, []);
-
+  
   const items = Array.isArray(poi) ? poi : [];
   const markerSrc = '/markers/pin.png';
 

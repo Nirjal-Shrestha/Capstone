@@ -40,7 +40,7 @@ const poiData = [
     description: "Main campus library with study spaces, computers, and quiet zones.",
     image: "/images/library.jpg",
     modelUrl: "/models/BST.splat",
-    xy: { x: 0.452, y: 0.381 }
+    xy: { x: 0.394, y: 0.310 }
   },
   {
     id: 2,
@@ -56,7 +56,15 @@ const poiData = [
     description: "Popular coffee and lunch spot on campus.",
     image: "/images/agora.jpg",
     modelUrl: "/models/Poppy.glb",
-    xy: { x: 0.500, y: 0.520 }
+    xy: { x: 0.394, y: 0.425 }
+  },
+  {
+    id: 4, // New marker
+    name: "Engineering Building",
+    description: "Engineering labs and classrooms.",
+    image: "/images/engineering.jpg",
+    modelUrl: "/models/ENG.splat",
+    xy: { x: 0.7000, y: 0.3000 } // Coordinates for the new marker
   }
 ];
 

@@ -15,8 +15,6 @@ export default function Home() {
           1: '/models/BST.splat',
           2: '/models/JG.splat',
           3: '/models/JSM.splat',
-          // 4: '/models/NR7.splat',
-          // 5: '/models/JG-BST.splat',
         };
         const xyMap = {
           1: { x: 0.452, y: 0.381 },
@@ -39,13 +37,27 @@ export default function Home() {
   const poiReady = useMemo(() => (Array.isArray(poi) ? poi : []).filter(p => p?.xy), [poi]);
 
   return (
-    <div style={{ padding: 16 }}>
-      <h2>La Trobe Campus – Interactive Tour</h2>
-      {error && <p style={{ color: 'red' }}>Failed to load POIs: {error}</p>}
-      <p>API total: {poi.length} | markers drawn: {poiReady.length}</p>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Title */}
+      <div
+        style={{
+          height: '50px',
+          backgroundColor: 'black',
+          color: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}
+      >
+        <h2 style={{ margin: 0 }}>La Trobe Campus – Interactive Tour</h2>
+      </div>
 
-      <MapView poi={poiReady} />
-      <InfoPanel />
+      {/* Map */}
+      <div style={{ flex: 1 }}>
+        <MapView poi={poiReady} />
+        <InfoPanel />
+      </div>
     </div>
   );
 }
