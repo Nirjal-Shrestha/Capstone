@@ -1,94 +1,79 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import { useViewer } from '../../context/ViewerContext.jsx';
-import './map.css';
+import { useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import "./map.css";
 
-export default function MapView({ poi, width = 1600, height = 1000 }) {
-  const ctx = (typeof useViewer === 'function') ? useViewer() : undefined;
-  const setSelectedPOI = ctx?.setSelectedPOI ?? (() => {});
+// Custom pin icon
+const defaultIcon = new L.Icon({
+  iconUrl: "/markers/pin.png",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
 
-  const wrapperRef = useRef(null);
-  const imgRef = useRef(null);
-  const [imgError, setImgError] = useState(false);
-  const onImgError = () => setImgError(true);
+// Precise La Trobe Bundoora POIs
+const poi = [
+  { id: 1, name: "Main Library", lat: -37.719982, lng: 145.048403, category: "Building" },
+  { id: 2, name: "Agora", lat: -37.720763, lng: 145.048789, category: "Retail" },
+  { id: 3, name: "Chisholm College", lat: -37.723708, lng: 145.049819, category: "Residential" },
+  { id: 4, name: "Union Hall", lat: -37.722923, lng: 145.050377, category: "Notable" },
+  { id: 5, name: "Glenn College", lat: -37.720733, lng: 145.051600, category: "Residential" },
+  { id: 6, name: "Physical Sciences Building", lat: -37.721175, lng: 145.047598, category: "Building" },
+  { id: 7, name: "Car Park 1", lat: -37.720075, lng: 145.044857, category: "Car Park" },
+  { id: 8, name: "Car Park 2", lat: -37.722295, lng: 145.045602, category: "Car Park" },
+  { id: 9, name: "Sylvia Walton Building", lat: -37.721718, lng: 145.050141, category: "Building" },
+  { id: 10, name: "La Trobe Business School", lat: -37.720334, lng: 145.049556, category: "Building" },
+  { id: 11, name: "Health Sciences Building", lat: -37.720245, lng: 145.045801, category: "Building" },
+  { id: 12, name: "Tennis Court", lat: -37.719723, lng: 145.053912, category: "Outdoor" },
+];
 
-  const onCanvasClick = useCallback((e) => {
-    if (!imgRef.current) return;
-    const rect = imgRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    console.log('Marker XY (0..1):', { x: +x.toFixed(4), y: +y.toFixed(4) });
-  }, []);
-  
-  const items = Array.isArray(poi) ? poi : [];
-  const markerSrc = '/markers/pin.png';
+export default function MapView() {
+  const [mapType, setMapType] = useState("default");
+  const latrobeCenter = [-37.7205, 145.0470];
+
+  const tiles = {
+    default: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    satellite:
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  };
 
   return (
     <div className="map-root">
-      <div className="map-toolbar" role="group" aria-label="Map controls" style={{ zIndex: 100, pointerEvents: 'auto' }}>
-        <button onClick={() => wrapperRef.current?.zoomIn?.()} aria-label="Zoom in">＋</button>
-        <button onClick={() => wrapperRef.current?.zoomOut?.()} aria-label="Zoom out">－</button>
-        <button onClick={() => wrapperRef.current?.resetTransform?.()} aria-label="Reset view">Reset</button>
+      {/* Header bar */}
+      <div className="map-header">
+        <h2>La Trobe University – Bundoora Campus</h2>
+        <button
+          className="toggle-btn"
+          onClick={() =>
+            setMapType((prev) => (prev === "default" ? "satellite" : "default"))
+          }
+        >
+          {mapType === "default" ? "Satellite View" : "Map View"}
+        </button>
       </div>
 
-      <TransformWrapper
-        ref={wrapperRef}
-        minScale={0.8}
-        maxScale={5}
-        wheel={{ step: 0.15 }}
-        doubleClick={{ disabled: true }}
+      <MapContainer
+        center={latrobeCenter}
+        zoom={17}
+        scrollWheelZoom
+        style={{ width: "100vw", height: "100vh" }}
       >
-        <TransformComponent>
-          <div
-            className="map-canvas"
-            onClick={onCanvasClick}
-            style={{
-              width, height, position: 'relative', margin: '0 auto',
-              borderRadius: 12, overflow: 'hidden', boxShadow: '0 6px 18px rgba(0,0,0,.08)', background: '#f5f6f8'
-            }}
-          >
-            {!imgError ? (
-              <img
-                ref={imgRef}
-                src="/map/campus.jpg"
-                onError={onImgError}
-                alt="Campus map"
-                className="map-image"
-                draggable={false}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }}
-              />
-            ) : (
-              <div className="map-placeholder" style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center', background: '#e9eef5', color: '#6b7280' }}>
-                <p>Add your map at <code>/public/map/campus.jpg</code></p>
-              </div>
-            )}
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> & Esri'
+          url={tiles[mapType]}
+        />
 
-            {items.filter(p => p?.xy && typeof p.xy.x === 'number' && typeof p.xy.y === 'number').map(p => (
-              <button
-                key={p.id}
-                className="poi-marker"
-                title={p.name}
-                aria-label={p.name}
-                onClick={(e) => { e.stopPropagation(); setSelectedPOI(p); }}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedPOI(p); } }}
-                style={{
-                  position: 'absolute',
-                  left: `${p.xy.x * 100}%`,
-                  top:  `${p.xy.y * 100}%`,
-                  transform: 'translate(-50%, -100%)',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  zIndex: 3,
-                  padding: 0
-                }}
-              >
-                <img src={markerSrc} alt="" className="poi-icon" style={{ width: 28, height: 28, objectFit: 'contain', pointerEvents: 'none', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.25))' }} />
-              </button>
-            ))}
-          </div>
-        </TransformComponent>
-      </TransformWrapper>
+        {poi.map((p) => (
+          <Marker key={p.id} position={[p.lat, p.lng]} icon={defaultIcon}>
+            <Popup>
+              <b>{p.name}</b>
+              <br />
+              <small>{p.category}</small>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
     </div>
   );
 }
