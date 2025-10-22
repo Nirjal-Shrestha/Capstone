@@ -1,79 +1,69 @@
-import { useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import "./map.css";
+.map-root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
 
-// Custom pin icon
-const defaultIcon = new L.Icon({
-  iconUrl: "/markers/pin.png",
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-});
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+}
 
-// Precise La Trobe Bundoora POIs
-const poi = [
-  { id: 1, name: "Main Library", lat: -37.719982, lng: 145.048403, category: "Building" },
-  { id: 2, name: "Agora", lat: -37.720763, lng: 145.048789, category: "Retail" },
-  { id: 3, name: "Chisholm College", lat: -37.723708, lng: 145.049819, category: "Residential" },
-  { id: 4, name: "Union Hall", lat: -37.722923, lng: 145.050377, category: "Notable" },
-  { id: 5, name: "Glenn College", lat: -37.720733, lng: 145.051600, category: "Residential" },
-  { id: 6, name: "Physical Sciences Building", lat: -37.721175, lng: 145.047598, category: "Building" },
-  { id: 7, name: "Car Park 1", lat: -37.720075, lng: 145.044857, category: "Car Park" },
-  { id: 8, name: "Car Park 2", lat: -37.722295, lng: 145.045602, category: "Car Park" },
-  { id: 9, name: "Sylvia Walton Building", lat: -37.721718, lng: 145.050141, category: "Building" },
-  { id: 10, name: "La Trobe Business School", lat: -37.720334, lng: 145.049556, category: "Building" },
-  { id: 11, name: "Health Sciences Building", lat: -37.720245, lng: 145.045801, category: "Building" },
-  { id: 12, name: "Tennis Court", lat: -37.719723, lng: 145.053912, category: "Outdoor" },
-];
+/* Header bar top-center */
+.map-header {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px);
+  border-radius: 10px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+}
 
-export default function MapView() {
-  const [mapType, setMapType] = useState("default");
-  const latrobeCenter = [-37.7205, 145.0470];
+.map-header h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #b30000;
+  margin: 0;
+}
 
-  const tiles = {
-    default: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    satellite:
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-  };
+.toggle-btn {
+  background: #b30000;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
 
-  return (
-    <div className="map-root">
-      {/* Header bar */}
-      <div className="map-header">
-        <h2>La Trobe University – Bundoora Campus</h2>
-        <button
-          className="toggle-btn"
-          onClick={() =>
-            setMapType((prev) => (prev === "default" ? "satellite" : "default"))
-          }
-        >
-          {mapType === "default" ? "Satellite View" : "Map View"}
-        </button>
-      </div>
+.toggle-btn:hover {
+  background: #d11a1a;
+}
 
-      <MapContainer
-        center={latrobeCenter}
-        zoom={17}
-        scrollWheelZoom
-        style={{ width: "100vw", height: "100vh" }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> & Esri'
-          url={tiles[mapType]}
-        />
+/* Popup 3D model button */
+.model-btn {
+  background: #b30000;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-top: 6px;
+  transition: background 0.2s ease;
+}
 
-        {poi.map((p) => (
-          <Marker key={p.id} position={[p.lat, p.lng]} icon={defaultIcon}>
-            <Popup>
-              <b>{p.name}</b>
-              <br />
-              <small>{p.category}</small>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
-    </div>
-  );
+.model-btn:hover {
+  background: #d11a1a;
 }

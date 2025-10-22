@@ -1,14 +1,66 @@
-<!doctype html><html><head><meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Splat Viewer</title>
-<style>html,body{height:100%;margin:0;background:transparent} splat-viewer{display:block;width:100%;height:100%}</style>
-<script type="module">
-  import 'https://unpkg.com/@mkkellogg/gaussian-splats-3d@latest/dist/gaussian-splats-3d.js';
-</script>
-</head><body>
-  <splat-viewer id="v" fov="55" exposure="0.9" instantColor="true"></splat-viewer>
-  <script>
-    const src = new URLSearchParams(location.search).get('src');
-    if (src) document.getElementById('v').setAttribute('src', src);
-  </script>
-</body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Splat Viewer</title>
+    <style>
+      html, body {
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        background: #000;
+        overflow: hidden;
+      }
+      splat-viewer {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      #error {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #fff;
+        font-family: sans-serif;
+        text-align: center;
+      }
+    </style>
+
+    <!-- ✅ Load a specific stable version of Gaussian Splats -->
+    <script
+      type="module"
+      src="https://unpkg.com/@mkkellogg/gaussian-splats-3d@0.9.6/dist/gaussian-splats-3d.min.js"
+    ></script>
+  </head>
+  <body>
+    <splat-viewer
+      id="viewer"
+      fov="55"
+      exposure="0.9"
+      instantColor="true"
+      loading="lazy"
+    ></splat-viewer>
+    <div id="error"></div>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const src = params.get("src");
+      const viewer = document.getElementById("viewer");
+      const errorEl = document.getElementById("error");
+
+      if (src) {
+        viewer.setAttribute("src", src);
+        console.log("Loading model:", src);
+      } else {
+        errorEl.textContent = "No model specified (?src=...)";
+      }
+
+      viewer.addEventListener("error", (e) => {
+        console.error("Viewer error:", e);
+        errorEl.textContent = "⚠️ Failed to load model.";
+      });
+    </script>
+  </body>
+</html>

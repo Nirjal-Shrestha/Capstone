@@ -1,75 +1,83 @@
-import { useState } from "react";
+import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "./map.css";
 
-// Custom pin icon
-const defaultIcon = new L.Icon({
-  iconUrl: "/markers/pin.png",
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
+// Fix default Leaflet marker icon paths
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-// Precise La Trobe Bundoora POIs
+// 📍 Points of Interest + Models
 const poi = [
-  { id: 1, name: "Main Library", lat: -37.719982, lng: 145.048403, category: "Building" },
-  { id: 2, name: "Agora", lat: -37.720763, lng: 145.048789, category: "Retail" },
-  { id: 3, name: "Chisholm College", lat: -37.723708, lng: 145.049819, category: "Residential" },
-  { id: 4, name: "Union Hall", lat: -37.722923, lng: 145.050377, category: "Notable" },
-  { id: 5, name: "Glenn College", lat: -37.720733, lng: 145.051600, category: "Residential" },
-  { id: 6, name: "Physical Sciences Building", lat: -37.721175, lng: 145.047598, category: "Building" },
-  { id: 7, name: "Car Park 1", lat: -37.720075, lng: 145.044857, category: "Car Park" },
-  { id: 8, name: "Car Park 2", lat: -37.722295, lng: 145.045602, category: "Car Park" },
-  { id: 9, name: "Sylvia Walton Building", lat: -37.721718, lng: 145.050141, category: "Building" },
-  { id: 10, name: "La Trobe Business School", lat: -37.720334, lng: 145.049556, category: "Building" },
-  { id: 11, name: "Health Sciences Building", lat: -37.720245, lng: 145.045801, category: "Building" },
-  { id: 12, name: "Tennis Court", lat: -37.719723, lng: 145.053912, category: "Outdoor" },
+  {
+    id: 1,
+    name: "Bus Stop",
+    coords: [-37.720633390642845, 145.04632099734553],
+    model: "/models/BST.splat",
+  },
+  {
+    id: 2,
+    name: "Statue",
+    coords: [-37.71987763017671, 145.0464783764545],
+    model: "/models/JG-BST.splat",
+  },
+  {
+    id: 3,
+    name: "Jenny Graves",
+    coords: [-37.72079511810905, 145.0470506813924],
+    model: "/models/JG.splat",
+  },
+  {
+    id: 4,
+    name: "John Scott Meeting House",
+    coords: [-37.719405172981254, 145.05110354716055],
+    model: "/models/JSM.splat",
+  },
+  {
+    id: 5,
+    name: "Graduate House",
+    coords: [-37.71353942258608, 145.05038653906396],
+    model: "/models/NR7.splat",
+  },
 ];
 
 export default function MapView() {
-  const [mapType, setMapType] = useState("default");
-  const latrobeCenter = [-37.7205, 145.0470];
-
-  const tiles = {
-    default: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    satellite:
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  const handleView3D = (modelPath) => {
+    const viewerURL = `/splat-viewer.html?src=${encodeURIComponent(modelPath)}`;
+    window.open(viewerURL, "_blank");
   };
 
   return (
     <div className="map-root">
-      {/* Header bar */}
       <div className="map-header">
-        <h2>La Trobe University – Bundoora Campus</h2>
-        <button
-          className="toggle-btn"
-          onClick={() =>
-            setMapType((prev) => (prev === "default" ? "satellite" : "default"))
-          }
-        >
-          {mapType === "default" ? "Satellite View" : "Map View"}
-        </button>
+        <h2>La Trobe University – 3D Campus Map</h2>
       </div>
 
       <MapContainer
-        center={latrobeCenter}
+        center={[-37.7199, 145.048]}
         zoom={17}
         scrollWheelZoom
         style={{ width: "100vw", height: "100vh" }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> & Esri'
-          url={tiles[mapType]}
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution="© OpenStreetMap contributors"
         />
 
         {poi.map((p) => (
-          <Marker key={p.id} position={[p.lat, p.lng]} icon={defaultIcon}>
+          <Marker key={p.id} position={p.coords}>
             <Popup>
               <b>{p.name}</b>
               <br />
-              <small>{p.category}</small>
+              <button className="model-btn" onClick={() => handleView3D(p.model)}>
+                View 3D Model
+              </button>
             </Popup>
           </Marker>
         ))}
